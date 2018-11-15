@@ -247,16 +247,143 @@ arm64,i386,arm,intel,amd,AT&T,x86,x86_64,IA-64,MIPS,RISC;
 我们使用的就是intel汇编格式+面向i386处理器使用的指令集.
 
 ### make与Makefile
-在前面了解了gcc变异的过程,针对小型项目,手动逐步编译倒也没有问题.但当整个工程的架构逐渐变得复杂时,数不清的源文件,又放在不同的目录中.就不能每次手动编译了.所以需要一个自动化编译的东西,这个东西就是make.
+想一想gcc编译c语言代码的过程，针对小型项目，手动逐步编译倒也没有问题。但整个工程的架构逐渐变得复杂，数不清的源文件，又放在不同的目录中。就不能每次手动编译了。所以需要一个自动化编译的东西，这个东西就是make。对makefile做一个简单的讲述。
+
+在项目的根目录下建立一个名为Makefile的文件写好相关内容，然后你只需要在终端中输入make命令，即可完成。
+
+make的核心分为两个部分，即依赖关系与命令。
+
+简单地说，就是会建立目标文件到若干依赖文件的依赖，当出现以下情况时，执行制定的命令。
+1. 目标文件不存在
+2. 依赖文件的更新时间晚于目标文件
+3. 目标文件没有依赖文件
+
+下面的是例子：
+```makefile
+main.out: main.cpp
+    g++ main.cpp -o main.out
+```
+ps：命令有一个缩进，表示从属于上面的依赖关系。
+如上的一个makefile文件，简单的说就是，当main.out不存在或者main.cpp比main.out新时执行下面的命令，重新生成了main.out。
+怎么理解“新”呢：当你编译main.cpp 后，生成了main.out，main.out就比cpp新；然后你修改了main.cpp,main.cpp就比main.out新，新就证明被修改过。
+
+makefile的第一个依赖关系的目标文件是整个makefile的目标文件，用上面写过的代码为例子
+```c
+//main.c
+#include<stdio.h>
+int add(int x,int y);
+int main(){
+    int a=3,b=4;
+    printf("%d",add(a,b));
+    return 0;
+}
+```
+```c
+//t1.c
+int add(int x,int y){
+    return x+y;
+}
+```
 
 
+他的makefile可以写成（假设最终结果为main.out
 
-暂略
+```makefile
+main.out: main.o t1.o
+    gcc main.o add.o -o main.out
+main.o: main.c
+    gcc -c main.c
+t1.o: t1.c
+    gcc -c t1.c 
+```
+
+可以看出来，依赖可以是个树形结构，当一个文件被更新后，会逐层的更新相关的文件。第一个依赖关系是整个文件的目标文件。整个文件的目标文件的意思是执行make命令时的目标文件，也可以手动指定目标文件，比如： make main.o。不过这一点大多数时候是用来做以下情况的。
+
+```makefile
+clean:
+    -rm -f  main.o t1.o main.out
+```
+ps：以上这段为上面的补充;减号的作用是发生错误时Makefile继续。
+这样就可以执行make clean 来删除生成的文件了。
+
+当然不仅仅是clean了，还有更多的用途比如写一个debug，自动执行debug的命令。
+
+makefile还支持变量的使用来简化书写。并且可以在执行make的时候，手动指定变量的值。
+
+如
+```makefile
+target:= main.o t1.o
+main.out: main.o t1.o
+    gcc $(target) -o main.out
+main.o: main.c
+    gcc -c main.c
+t1.o: t1.c
+    gcc -c t1.c 
+
+.PHONY:clean
+clean:
+    -rm -f  $(target) main.out
+```
+
+
+makefile支持一隐含依赖规则。篇幅太长，不适合在这里说明。
+
+伪目标的作用可以去了解一下，也不做说明。
+当你看到如 .PHONY:clean 这样的东西要明白这是伪目标
+
+makefile中还支持函数，我认为是make中比较难的一部分。
+
+关于make，更多的规则可以自己在网上学习。
+更多可以参考《跟我一起写makefile》一文，里面讲述的很全面。
 
 
 ### gdb调试技能
 
 
+gdb是一个调试工具，比起很多ide提供的调试功能有些简陋。但是它麻雀虽小五脏俱全让人使用之后爱不释手。
+
+事实上，我们只用其中的一小部分功能，就足够了。
+
+```c
+//"hello.c"
+#include<stdio.h>
+int main(){
+    printf("hello world"); //注释
+    return 0;
+}
+```
+
+加入-g参数编译,使用gdb开始调试
+
+```shell
+gcc -g hello.c -o hello.out
+gdb -q hello.out
+```
+gdb 的-q参数意思是不输出Copyright，不然会在进入的时候有一大段Copyright
+
+
+命令|作用|示例
+:----|:-----|:----
+r |Run的缩写，如果此前没有下过断点，则执行完整个程序，否则暂停在第一个断点处
+c|Continue的缩写，继续执行到下一个断点或程序结束。
+b| 设置断点。可以使用行号，函数名称，地址等方式指定断点位置
+d|指定编号的某个断点或所有断点
+s,n，si,ni|单步执行，s进入函数内部，n不进入；si，ni汇编层次
+p|print的缩写，显示指定变量的值。
+display|设置一些自动显示的变量，当程序停住时，或是在你单步跟踪时，这些变量会自动显示|
+l|list的缩写查看源代码|
+quit|退出|
+help [命令名称]|帮助命令|
+
+
+具体使用不详细介绍了，说一些重要的点
+
+按下ctrl+x+a可以打开一个关键窗口，可以打开一个代码的显示窗口
+调试的核心就是断点+单步执行+查看
+print于和display非常有用，可以指定格式输出
+
+---
+下面说一说如何用gdb调试我们的操作系统
 暂略
 
 
