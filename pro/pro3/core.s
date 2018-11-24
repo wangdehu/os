@@ -368,6 +368,8 @@ SECTION core_data vstart=0                  ;系统核心的数据段
          message_6        db  0x0d,0x0a,0x0d,0x0a,0x0d,0x0a
                           db  '  User program terminated,control returned.',0
 
+        message_7         db 'Fuck you',0
+
          bin_hex          db '0123456789ABCDEF'
                                             ;put_hex_dword子过程用的查找表 
          core_buf   times 2048 db 0         ;内核用的缓冲区
@@ -563,8 +565,11 @@ start:
 
          mov ebx,message_5
          call sys_routine_seg_sel:put_string
+         mov cx,3
+tmp:
          mov esi,50                          ;用户程序位于逻辑50扇区 
          call load_relocate_program
+
       
          mov ebx,do_status
          call sys_routine_seg_sel:put_string
@@ -577,6 +582,7 @@ start:
                                              ;堆栈可能切换 
 
 return_point:                                ;用户程序返回点
+
          mov eax,core_data_seg_sel           ;使ds指向核心数据段
          mov ds,eax
 
@@ -584,9 +590,14 @@ return_point:                                ;用户程序返回点
          mov ss,eax 
          mov esp,[esp_pointer]
 
+        loop tmp
          mov ebx,message_6
          call sys_routine_seg_sel:put_string
 
+        mov ebx,message_7
+        call sys_routine_seg_sel:put_string
+
+       
          ;这里可以放置清除用户程序各种描述符的指令
          ;也可以加载并启动其它程序
        

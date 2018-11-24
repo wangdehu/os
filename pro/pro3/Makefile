@@ -1,6 +1,6 @@
 
 source := bootloader.s
-bin:= mbr.bin core.bin boot.bin 
+bin:= mbr.bin core.bin boot.bin
 flags := -Wall -ggdb -m32 -O3  -nostdinc
 
 os.img:$(bin)
@@ -8,7 +8,6 @@ os.img:$(bin)
 	dd if=core.bin seek=1 of=os.img conv=notrunc
 	dd if=boot.bin seek=50 of=os.img conv=notrunc
 	dd if=data.txt seek=100 of=os.img conv=notrunc
-
 mbr.bin: mbr.s
 	nasm -f bin mbr.s -o mbr.bin
 core.bin: core.s

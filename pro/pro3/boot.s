@@ -1,3 +1,5 @@
+
+
  
          
 ;===============================================================================
@@ -73,7 +75,9 @@ start:
      
          mov ebx,buffer 
          call far [fs:PrintString]           ;too.
-     
+
+
+        
          jmp far [fs:TerminateProgram]       ;将控制权返回到系统 
       
 code_end:

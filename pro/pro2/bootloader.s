@@ -53,6 +53,7 @@ start:
     
     jmp dword 0x0008:code32             ;重置cs,这个时候已经变成了段选择子了
                                         ;流水线被清空了
+                                        
 bits 32
 
 code32:
@@ -60,7 +61,6 @@ code32:
         mov cx,0010h
         ;mov cx,00000000000_10_000B         ;加载数据段选择子(0x10)
         mov ds,cx
-         ;以下在屏幕上显示"Protect mode OK." 
         mov byte [0x00],'A'
         mov byte [0x01],0xA4
         mov byte [0x02],'B'
