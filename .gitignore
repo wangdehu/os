@@ -3,3 +3,4 @@ booktool/*
 test.pro/*
 os.bin
 os.img
+*.o

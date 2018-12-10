@@ -15,9 +15,13 @@ core.bin: core.s
 boot.bin: boot.s
 	nasm -f bin boot.s -o boot.bin
 
-.PHONY: run clean
+.PHONY: run clean debug
 
 run : os.img
 	qemu-system-i386 -no-reboot -no-shutdown -drive file=os.img,format=raw
 clean:
 	-rm -f  os.img $(bin)
+debug: os.img
+	qemu-system-i386 -S -s  -parallel stdio  -drive file=os.img,format=raw & 
+	sleep 2
+	gnome-terminal -e "gdb -q -tui"
