@@ -1,5 +1,8 @@
 
          
+         
+         
+         
          core_base_address equ 0x00040000   ;常数，内核加载的起始内存地址 
          core_start_sector equ 0x00000001   ;常数，内核的起始逻辑扇区号 
          

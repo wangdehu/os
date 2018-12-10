@@ -60,6 +60,7 @@ code32:
 
         mov cx,0010h
         ;mov cx,00000000000_10_000B         ;加载数据段选择子(0x10)
+
         mov ds,cx
         mov byte [0x00],'A'
         mov byte [0x01],0xA4
@@ -75,8 +76,15 @@ code32:
         mov byte [0x0b],0x68
         mov byte [0x0c],'G'
         mov byte [0x0d],0x7E
+test:
         mov byte [0x0e],'H'
         mov byte [0x0f],0x49
+
+        mov byte [0x0e],'H'
+        mov byte [0x0f],0x7E
+
+        jmp test
+
  
 
 ;-------------------------------------------------------------------------------
