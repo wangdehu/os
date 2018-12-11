@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "x86.h": "c",
+        "elf.h": "c"
+    }
+}

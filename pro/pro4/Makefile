@@ -1,27 +1,20 @@
+run: os.img
+	qemu-system-i386 -no-reboot -no-shutdown -parallel stdio -hda os.img -serial null
 
-source := bootloader.s
-bin:= mbr.bin core.bin boot.bin
-flags := -Wall -ggdb -m32 -O3  -nostdinc
+main.o: main.c
+	gcc -m32 -O0 main.c -c -o main.o
 
-os.img:$(bin)
-	dd if=mbr.bin of=os.img conv=notrunc
-	dd if=core.bin seek=1 of=os.img conv=notrunc
-	dd if=boot.bin seek=50 of=os.img conv=notrunc
-	dd if=data.txt seek=100 of=os.img conv=notrunc
-mbr.bin: mbr.s
-	nasm -f bin mbr.s -o mbr.bin
-core.bin: core.s
-	nasm -f bin core.s -o core.bin
-boot.bin: boot.s
-	nasm -f bin boot.s -o boot.bin
-
-.PHONY: run clean debug
-
-run : os.img
-	qemu-system-i386 -no-reboot -no-shutdown -drive file=os.img,format=raw
+boot.o:bootloader.s
+	nasm -f elf bootloader.s -o boot.o -O0
+boot:boot.o main.o
+	ld -m  elf_i386 -nostdlib -N -e _start -Ttext 0x7C00  -o boot boot.o main.o
+os.img: boot
+	objcopy -S -O binary boot boot.1
+	./sign boot.1  boot.2
+	dd if=boot.2 of=os.img conv=notrunc
 clean:
-	-rm -f  os.img $(bin)
+	-rm  -f boot.o boot boot.1 boot.2 os.img
 debug: os.img
 	qemu-system-i386 -S -s  -parallel stdio  -drive file=os.img,format=raw & 
 	sleep 2
-	gnome-terminal -e "gdb -q -tui"
+	gnome-terminal -e "gdb -q -tui -x gdbfile"
