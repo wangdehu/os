@@ -1,27 +1,50 @@
+#######################
+# Makefile for foobar #
+#######################
 
-source := bootloader.s
-bin:= mbr.bin core.bin boot.bin
-flags := -Wall -ggdb -m32 -O3  -nostdinc
+# Programs, flags, etc.
+ASM		= nasm
+CC		= gcc
+LD		= ld
+ASMFLAGS	= -f elf -O0 
+CFLAGS		= -c -m32 -O0
+LDFLAGS		=  -m  elf_i386 -nostdlib -N -e _start -Ttext 0x7C00 
 
-os.img:$(bin)
-	dd if=mbr.bin of=os.img conv=notrunc
-	dd if=core.bin seek=1 of=os.img conv=notrunc
-	dd if=boot.bin seek=50 of=os.img conv=notrunc
-	dd if=data.txt seek=100 of=os.img conv=notrunc
-mbr.bin: mbr.s
-	nasm -f bin mbr.s -o mbr.bin
-core.bin: core.s
-	nasm -f bin core.s -o core.bin
-boot.bin: boot.s
-	nasm -f bin boot.s -o boot.bin
+# This Program
+BIN		= foobar
+OBJS		= foo.o bar.o
 
-.PHONY: run clean debug
+# All Phony Targets
+.PHONY : everything final image clean realclean disasm all buildimg
+run: os.img
+	qemu-system-i386 -no-reboot -no-shutdown -parallel stdio -hda os.img -serial null
 
-run : os.img
-	qemu-system-i386 -no-reboot -no-shutdown -drive file=os.img,format=raw
-clean:
-	-rm -f  os.img $(bin)
+os.img: everything	
+	objcopy -S -O binary foobar foobar.1
+	./sign foobar.1  foobar.2
+	dd if=foobar.2 of=os.img conv=notrunc
+# Default starting position
+everything : $(BIN)
+
+all : realclean everything
+
+final : all clean
+
+clean :
+	rm -f $(OBJS) os.img $(BIN) foobar.2 foobar foobar.1
+
+realclean :
+	rm -f $(OBJS) $(BIN)
+
+$(BIN) : $(OBJS)
+	$(LD) $(LDFLAGS) -o $(BIN) $(OBJS)
+
+foo.o : foo.asm
+	$(ASM) $(ASMFLAGS) -o $@ $<
+
+bar.o: bar.c
+	$(CC) $(CFLAGS) -o $@ $<
 debug: os.img
 	qemu-system-i386 -S -s  -parallel stdio  -drive file=os.img,format=raw & 
 	sleep 2
-	gnome-terminal -e "gdb -q -tui"
+	gnome-terminal -e "gdb -q -tui -x gdbfile"
