@@ -7,7 +7,7 @@ ASM		= nasm
 CC		= gcc
 LD		= ld
 ASMFLAGS	= -f elf
-CFLAGS		= -c -m32 -O3
+CFLAGS		= -c -m32 -O0
 LDFLAGS		=  -m  elf_i386 -nostdlib -N -e _start -Ttext 0x7C00 
 
 # This Program

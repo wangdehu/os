@@ -2,11 +2,15 @@
 bits 16
 extern choose	
 
+[section .data]	; 数据在此
+
+num1st		dd	3
+num2nd		dd	3
 
 [section .text]	; 代码在此
 
-global _start	; 我们必须导出 _start 这个入口，以便让链接器识别。
-global print_string	; 导出这个函数为了让 bar.c 使用
+global _start	
+global print_string	
 
 _start:
 
@@ -16,18 +20,24 @@ _start:
     mov ss,ax
     mov esp,0x7c00
 
+	push	dword [num2nd]	
+	push	dword [num1st]	
 	call choose	
-	mov ax,1	
-	call print_string
+	
+	
+
+
 	jmp $
+	nop
+	nop
 
 print_string:
 	mov ah,00h
 	mov al,04h
 	int 10h
-	mov ah, 0Eh			
+	mov ah,0Eh			
 	mov bh,00h
 	mov bl,02h
-	rent
+	ret
 
 
