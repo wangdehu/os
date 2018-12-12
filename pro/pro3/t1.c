@@ -1,5 +1,5 @@
-void print_string(void);
+extern void print_string(int len, char *str);
 void choose(void)
 {
-	print_string();
+	print_string(11, "hello world");
 }

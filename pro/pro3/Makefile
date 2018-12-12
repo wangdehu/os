@@ -40,4 +40,4 @@ debug: os.img
 	sleep 2
 	gnome-terminal -e "gdb -q -tui -x gdbfile"
 clean :
-	-rm -f os.img boot.o boot.tmp1 boot.tmp2 
+	-rm -f os.img boot.o boot.tmp1 boot.tmp2  t1.o boot

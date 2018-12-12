@@ -1,6 +1,6 @@
 
-#include <inc/x86.h>
-#include <inc/elf.h>
+#include "inc/x86.h"
+#include "inc/elf.h"
 
 //扇区的大小为512
 #define SECTSIZE 512
@@ -15,7 +15,7 @@ void readseg(uint32_t, uint32_t, uint32_t);
 void bootmain(void)
 {
     struct proghdr *ph, *eph;
-    struct elfhdr *elf = 0x10000;
+    struct elfhdr *elf = (struct elfhdr *)(0x10000);
 
     //将硬盘上从第一个扇区开始的4096个字节读到内存中地址为0x10000处
     readseg((uint32_t)elf, SECTSIZE * 8, 0);
