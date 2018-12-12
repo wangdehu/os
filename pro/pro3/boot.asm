@@ -2,15 +2,13 @@
 bits 16
 extern choose
 
+global _start	
+global print_string
 
 [section .data]
 data_string db "this is string",0
 
 [section .text]
-
-global _start	
-global print_string
-
 
 _start:
 
@@ -18,7 +16,7 @@ _start:
     mov ds,ax
     mov ss,ax
     mov esp,0x7c00
-	mov si,data_string
+	
 
 	call choose	
 
@@ -26,7 +24,8 @@ _start:
 	nop	
 	nop
 
-print_string:			
+print_string:	
+	mov si,data_string		
 	mov ah,00h
 	mov al,04h
 	int 10h
