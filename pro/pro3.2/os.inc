@@ -104,7 +104,7 @@ PG_USU		EQU	4	; U/S 属性位值, 用户级
 ;        Attr:      db
 %macro Gate 4
 	dw	(%2 & 0FFFFh)				; 偏移 1				(2 字节)
-	dw	%1					; 选择子				(2 字节)
+	dw	%1							; 选择子				(2 字节)
 	dw	(%3 & 1Fh) | ((%4 << 8) & 0FF00h)	; 属性					(2 字节)
 	dw	((%2 >> 16) & 0FFFFh)			; 偏移 2				(2 字节)
 %endmacro ; 共 8 字节
